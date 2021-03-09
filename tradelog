@@ -130,8 +130,7 @@ apply_t_filter()
 }
 
 # Apply all the filters
-[ -n "$t_filter" ] & apply_t_filter
-
+[ -n "$t_filter" ] && apply_t_filter
 
 
 list_tick_f()
@@ -147,6 +146,4 @@ profit_f()
 [ -n "$list_tick" ] && list_tick_f
 [ -n "$profit" ] && profit_f
 echo "$text"
-
-
 
