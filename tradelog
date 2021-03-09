@@ -1,0 +1,152 @@
+#!/usr/bin/env dash
+POSIXLY_CORRECT=1
+
+# TODO: Make prettier
+usage()
+{
+echo 'JMÉNO
+	tradelog - analyzátor logů z obchodování na burze
+
+POUŽITÍ
+	tradelog [-h|--help] [FILTR] [PŘÍKAZ] [LOG [LOG2 [...]]
+
+VOLBY
+
+PŘÍKAZ může být jeden z:
+	list-tick – výpis seznamu vyskytujících se burzovních symbolů, tzv. “tickerů”.
+	profit – výpis celkového zisku z uzavřených pozic.
+	pos – výpis hodnot aktuálně držených pozic seřazených sestupně dle hodnoty.
+	last-price – výpis poslední známé ceny pro každý ticker.
+	hist-ord – výpis histogramu počtu transakcí dle tickeru.
+	graph-pos – výpis grafu hodnot držených pozic dle tickeru.
+FILTR může být kombinace následujících:
+	-a DATETIME – after: jsou uvažovány pouze záznamy PO tomto datu (bez tohoto data). DAT
+	TIME je formátu YYYY-MM-DD HH:MM:SS.
+	-b DATETIME – before: jsou uvažovány pouze záznamy PŘED tímto datem (bez tohoto data).
+	-t TICKER – jsou uvažovány pouze záznamy odpovídající danému tickeru. Při více
+	výskytech přepínače se bere množina všech uvedených tickerů.
+	-w WIDTH – u výpisu grafů nastavuje jejich šířku, tedy délku nejdelšího řádku na WIDTH. 	Tedy, WIDTH musí být kladné celé číslo. Více výskytů přepínače je chybné spuštění.
+	-h a --help vypíšou nápovědu s krátkým popisem každého příkazu a přepínače.'
+	exit "$1"
+}
+
+cmd_amount_err()
+{
+	echo "Expected one of the commands at most" && usage 1
+}
+
+cmd=0 # amount of cmds called (should be 1 at most)
+while [ "$#" -gt 0 ]
+do
+	case "$1" in
+	-a)
+		echo "after switch"
+		shift
+		echo "$1 was the arg"
+		shift
+		;;
+	-b)
+		echo "before switch"
+		shift
+		echo "$1 was the arg"
+		shift
+		;;
+	-t)
+		shift
+		t_filter="$t_filter $1"
+		shift
+		;;
+	-w)
+		echo "width switch"
+		shift
+		echo "$1 was the arg"
+		shift
+		;;
+	-h|--help)
+		usage 0
+		;;
+	list-tick)
+		list_tick=0
+		shift
+		[ "$cmd" -ge 1 ] && cmd_amount_err
+		cmd=$((cmd+1))
+		;;
+	profit)
+		profit=0
+		shift
+		[ "$cmd" -ge 1 ] && cmd_amount_err
+		cmd=$((cmd+1))
+		;;
+	pos)
+		pos=0
+		shift
+		[ "$cmd" -ge 1 ] && cmd_amount_err
+		cmd=$((cmd+1))
+		;;
+	last-price)
+		last_price=0
+		shift
+		cmd=$((cmd+1))
+		;;
+	hist-ord)
+		hist_ord=0
+		shift
+		[ "$cmd" -ge 1 ] && cmd_ammount_err
+		cmd=$((cmd+1))
+		;;
+	graph-pos)
+		graph_pos=0
+		shift
+		[ "$cmd" -ge 1 ] && cmd_ammount_err
+		cmd=$((cmd+1))
+		;;
+	*)
+		if [ -z "$files" ]
+		then
+			files="$1"
+		else
+			files="$files $1"
+		fi
+		shift
+	esac
+done
+
+# Concat all files together
+[ -z "$files" ] && usage 0
+for o in $files
+do
+	[ ! -f "$o" ] && echo "$o file does not exist!" && exit 1
+	text="$text$(cat "$o")"
+done
+
+
+apply_t_filter()
+{
+	for f in $t_filter
+	do
+		filtered="$filtered$(echo "$text" | awk -F\; -v f="$f" '{if($2 == f){print}}')"
+	done
+	text="$filtered"
+}
+
+# Apply all the filters
+[ -n "$t_filter" ] & apply_t_filter
+
+
+
+list_tick_f()
+{
+	echo "$text" | awk -F\; '{print $2}' | sort -u && exit 0
+}
+
+profit_f()
+{
+	echo "$text" | awk -F\; '{if($3=="buy"){sum-=$4*$6}else{sum+=$4*$6}} END {printf "%.2f\n", sum}' && exit 0 
+}
+
+[ -n "$list_tick" ] && list_tick_f
+[ -n "$profit" ] && profit_f
+echo "$text"
+
+
+
