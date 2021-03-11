@@ -124,6 +124,7 @@ apply_t_filter()
 {
 	for f in $t_filter
 	do
+		[ -n "$filtered" ] && filtered="$filtered\n"
 		filtered="$filtered$(echo "$text" | awk -F\; -v f="$f" '{if($2 == f){print}}')"
 	done
 	text="$filtered"
