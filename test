@@ -1,0 +1,30 @@
+#! /usr/bin/env sh
+
+# First test skipped for now stdin
+
+test_f()
+{
+	test="$(diff tmp ./cases/$1)"
+	[ -n "$test" ] && echo "Test #$1 failed" && echo "$test"
+	rm tmp
+}
+
+./tradelog -t TSLA -t V stock-2.log > tmp
+test_f 2
+
+# Skip third for now .gz
+
+./tradelog list-tick stock-2.log > tmp
+test_f 4
+
+./tradelog profit stock-2.log > tmp
+test_f 5
+
+./tradelog profit -t TSM -t PYPL stock-2.log > tmp
+test_f 6
+
+./tradelog pos stock-2.log > tmp
+test_f 7
+
+./tradelog pos -t TSM -t PYPL -t AAPL stock-2.log > tmp
+test_f 8
