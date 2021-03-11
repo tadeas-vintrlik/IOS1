@@ -135,15 +135,36 @@ apply_t_filter()
 
 list_tick_f()
 {
-	echo "$text" | awk -F\; '{print $2}' | sort -u && exit 0
+	echo "$text" | awk -F\; '{print $2}' | sort -u
+}
+
+tick_pos()
+{
+	echo "$text" | awk -F\; -v t="$1" '{if($2==t){price=$4; if($3=="buy"){sum-=$6}else{sum+=$6}}} END{printf "%s\t: %11.2f\n", t, -sum*price}'
+}
+
+last_price()
+{
+	echo "$text" | grep "$1" | tail -n 1 | awk -F\; '{print $4}'
+}
+
+pos_f()
+{
+	for tick in $(list_tick_f)
+	do
+		all_pos="$all_pos\n$(tick_pos "$tick")"
+	done
+	echo "$all_pos" | sort -t: -rnk2 | awk '$1'
+	# Awk just to remove empty line created by sort
 }
 
 profit_f()
 {
-	echo "$text" | awk -F\; '{if($3=="buy"){sum-=$4*$6}else{sum+=$4*$6}} END {printf "%.2f\n", sum}' && exit 0 
+	echo "$text" | awk -F\; '{if($3=="buy"){sum-=$4*$6}else{sum+=$4*$6}} END {printf "%.2f\n", sum}'
 }
 
-[ -n "$list_tick" ] && list_tick_f
-[ -n "$profit" ] && profit_f
+[ -n "$list_tick" ] && list_tick_f && exit 0
+[ -n "$profit" ] && profit_f && exit 0
+[ -n "$pos" ] && pos_f && exit 0
 echo "$text"
 
