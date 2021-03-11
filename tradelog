@@ -124,10 +124,10 @@ apply_t_filter()
 {
 	for f in $t_filter
 	do
-		[ -n "$filtered" ] && filtered="$filtered\n"
-		filtered="$filtered$(echo "$text" | awk -F\; -v f="$f" '{if($2 == f){print}}')"
+		[ -n "$filter_regex" ] && filter_regex="$filter_regex\|"
+		filter_regex="$filter_regex$f;"
 	done
-	text="$filtered"
+	text="$(echo "$text" | grep "$filter_regex")"
 }
 
 # Apply all the filters
@@ -141,7 +141,7 @@ list_tick_f()
 
 tick_pos()
 {
-	echo "$text" | awk -F\; -v t="$1" '{if($2==t){price=$4; if($3=="buy"){sum-=$6}else{sum+=$6}}} END{printf "%s\t: %11.2f\n", t, -sum*price}'
+	echo "$text" | awk -F\; -v t="$1" '{if($2==t){price=$4; if($3=="buy"){sum-=$6}else{sum+=$6}}} END{printf "%-10s:%12.2f\n", t, -sum*price}'
 }
 
 last_price()
