@@ -5,7 +5,6 @@
 failed=0
 total=8
 
-<<<<<<< HEAD
 [ "$1" = "-v" ] && verbose=1
 
 test_f()
@@ -13,19 +12,16 @@ test_f()
 	test="$(diff tmp ./cases/$1)"
 	[ -n "$test" ] && echo "Test #$1 failed" && ((failed=failed+1))
 	[ -n "$test" ] && [ $verbose ] && echo "$test"
-=======
-test_f()
-{
-	test="$(diff tmp ./cases/$1)"
-	[ -n "$test" ] && echo "Test #$1 failed" && echo "$test" && $failed=$((failed++))
->>>>>>> 5f8c42f6ee06909ac628d73fd076294c6a46a397
-	rm tmp
 }
+
+cat stock-2.log | head -n 5 | ./tradelog > tmp
+test_f 1
 
 ./tradelog -t TSLA -t V stock-2.log > tmp
 test_f 2
 
-# Skip third for now .gz
+./tradelog -t CVX stock-4.log.gz | head -n 3 > tmp
+test_f 3
 
 ./tradelog list-tick stock-2.log > tmp
 test_f 4
