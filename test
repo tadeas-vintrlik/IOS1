@@ -2,10 +2,16 @@
 
 # First test skipped for now stdin
 
+failed=0
+total=8
+
+[ "$1" = "-v" ] && verbose=1
+
 test_f()
 {
 	test="$(diff tmp ./cases/$1)"
-	[ -n "$test" ] && echo "Test #$1 failed" && echo "$test"
+	[ -n "$test" ] && echo "Test #$1 failed" && ((failed=failed+1))
+	[ -n "$test" ] && [ $verbose ] && echo "$test"
 	rm tmp
 }
 
@@ -28,3 +34,5 @@ test_f 7
 
 ./tradelog pos -t TSM -t PYPL -t AAPL stock-2.log > tmp
 test_f 8
+
+echo "$((total-failed))/$total tests succeeded"
