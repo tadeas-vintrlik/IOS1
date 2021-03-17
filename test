@@ -3,7 +3,7 @@
 # First test skipped for now stdin
 
 failed=0
-total=8
+total=13
 
 [ "$1" = "-v" ] && verbose=1
 
@@ -30,13 +30,28 @@ test_f 4
 ./tradelog profit stock-2.log > tmp
 test_f 5
 
-./tradelog profit -t TSM -t PYPL stock-2.log > tmp
+./tradelog -t TSM -t PYPL stock-2.log  profit> tmp
 test_f 6
 
 ./tradelog pos stock-2.log > tmp
 test_f 7
 
-./tradelog pos -t TSM -t PYPL -t AAPL stock-2.log > tmp
+./tradelog -t TSM -t PYPL -t AAPL pos stock-2.log > tmp
 test_f 8
+
+./tradelog last-price stock-2.log > tmp
+test_f 9
+
+./tradelog hist-ord stock-2.log > tmp
+test_f 10
+
+./tradelog -w 100 graph-pos stock-6.log > tmp
+test_f 11
+
+./tradelog -w 10 -t FB -t JNJ -t WMT graph-pos stock-6.log > tmp
+test_f 12
+
+cat /dev/null | ./tradelog profit > tmp
+test_f 13
 
 echo "$((total-failed))/$total tests succeeded"
