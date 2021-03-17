@@ -5,6 +5,7 @@
 failed=0
 total=8
 
+<<<<<<< HEAD
 [ "$1" = "-v" ] && verbose=1
 
 test_f()
@@ -12,6 +13,12 @@ test_f()
 	test="$(diff tmp ./cases/$1)"
 	[ -n "$test" ] && echo "Test #$1 failed" && ((failed=failed+1))
 	[ -n "$test" ] && [ $verbose ] && echo "$test"
+=======
+test_f()
+{
+	test="$(diff tmp ./cases/$1)"
+	[ -n "$test" ] && echo "Test #$1 failed" && echo "$test" && $failed=$((failed++))
+>>>>>>> 5f8c42f6ee06909ac628d73fd076294c6a46a397
 	rm tmp
 }
 
