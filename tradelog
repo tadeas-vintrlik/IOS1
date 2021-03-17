@@ -147,6 +147,7 @@ list_tick_f()
 tick_pos()
 {
 	echo "$text" | awk -F\; -v t="$1" '{if($2==t){price=$4; if($3=="buy"){sum-=$6}else{sum+=$6}}} END{printf "%-10s:%12.2f\n", t, -sum*price}'
+	# TODO: Change formating?
 }
 
 last_price()
@@ -169,8 +170,18 @@ profit_f()
 	echo "$text" | awk -F\; '{if($3=="buy"){sum-=$4*$6}else{sum+=$4*$6}} END {printf "%.2f\n", sum}'
 }
 
+last_price_f()
+{
+	for tick in $(list_tick_f)
+	do
+		echo "$text" | grep "$tick" | tail -n 1 | awk -F\; '{printf("%s %.2f\n", $2, $4)}'
+		# TODO: Change formating?
+	done
+}
+
 [ -n "$list_tick" ] && list_tick_f && exit 0
 [ -n "$profit" ] && profit_f && exit 0
 [ -n "$pos" ] && pos_f && exit 0
+[ -n "$last_price" ] && last_price_f && exit 0
 echo "$text"
 
