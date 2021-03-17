@@ -112,7 +112,7 @@ do
 done
 
 # Concat all files together
-[ -z "$files" ] && usage 0
+[ -z "$files" ] && text="$(cat -)"
 for o in $files
 do
 	[ ! -f "$o" ] && echo "$o file does not exist!" && exit 1
