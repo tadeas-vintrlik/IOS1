@@ -10,7 +10,7 @@ total=13
 test_f()
 {
 	test="$(diff tmp ./cases/$1)"
-	[ -n "$test" ] && echo "Test #$1 failed" && ((failed=failed+1))
+	[ -n "$test" ] && echo "Test #$1 failed" && failed=$((failed+1))
 	[ -n "$test" ] && [ $verbose ] && echo "$test"
 	rm tmp
 }
