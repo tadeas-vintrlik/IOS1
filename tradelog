@@ -1,5 +1,6 @@
 #!/usr/bin/env dash
 POSIXLY_CORRECT=1
+LC_ALL=C
 
 # TODO: Make prettier
 usage()
@@ -174,7 +175,7 @@ last_price_f()
 {
 	for tick in $(list_tick_f)
 	do
-		echo "$text" | grep "$tick" | tail -n 1 | awk -F\; '{printf("%s %.2f\n", $2, $4)}'
+		echo "$text" | grep "$tick" | tail -n 1 | awk -F\; '{printf("%-9s : %7.2f\n", $2, $4)}'
 		# TODO: Change formating?
 	done
 }
