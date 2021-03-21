@@ -56,9 +56,8 @@ do
 		shift
 		;;
 	-w)
-		echo "width switch"
 		shift
-		echo "$1 was the arg"
+		width="$1"
 		shift
 		;;
 	-h|--help)
@@ -128,7 +127,7 @@ apply_t_filter()
 {
 	for f in $t_filter
 	do
-		[ -n "$filter_regex" ] && filter_regex="$filter_regex\|"
+		[ -n "$filter_regex" ] && filter_regex="$filter_regex\\|"
 		filter_regex="$filter_regex$f;"
 	done
 	text="$(echo "$text" | grep "$filter_regex")"
@@ -170,7 +169,7 @@ pos_f()
 {
 	for tick in $(list_tick_f)
 	do
-		all_pos="$all_pos\n$(tick_pos "$tick")"
+		all_pos="$all_pos\\n$(tick_pos "$tick")"
 	done
 	echo "$all_pos" | sort -t: -rnk2 | awk '$1'
 	# Awk just to remove empty line created by sort
@@ -190,18 +189,39 @@ last_price_f()
 	done
 }
 
+# Return the most transactions on a single tick
+max_transactions()
+{
+	max=0
+	for tick in $(list_tick_f)
+	do
+		amount="$(echo "$text" | grep -c ";$tick;")"
+		[ "$amount" -gt "$max" ] && max=$amount
+	done
+	echo "$max"
+}
+
 hist_ord_f()
 {
+	[ -n "$width" ] && max="$(max_transactions)"
 	for tick in $(list_tick_f)
 	do
 		printf "%-10s: " "$tick"
-		total="$(echo "$text" | grep ";$tick;" | wc -l)"
-		while [ $total -gt 0 ]
+		
+		total="$(echo "$text" | grep -c ";$tick;")"
+		
+		if [ -n "$width" ]
+		then
+			scale=$((width / max))
+			total=$((total * scale))
+		fi
+		
+		while [  "$total" -gt 0 ]
 		do
 			printf "#"
 			total=$((total-1))
 		done
-		printf "\n"
+		echo ""
 	done
 }
 
