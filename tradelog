@@ -207,15 +207,15 @@ hist_ord_f()
 	for tick in $(list_tick_f)
 	do
 		printf "%-10s: " "$tick"
-		
+
 		total="$(echo "$text" | grep -c ";$tick;")"
-		
+
 		if [ -n "$width" ]
 		then
 			scale=$((width / max))
 			total=$((total * scale))
 		fi
-		
+
 		while [  "$total" -gt 0 ]
 		do
 			printf "#"
