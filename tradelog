@@ -41,15 +41,13 @@ while [ "$#" -gt 0 ]
 do
 	case "$1" in
 	-a)
-		echo "after switch"
 		shift
-		echo "$1 was the arg"
+		a_filter="$1"
 		shift
 		;;
 	-b)
-		echo "before switch"
 		shift
-		echo "$1 was the arg"
+		b_filter="$1"
 		shift
 		;;
 	-t)
@@ -136,8 +134,20 @@ apply_t_filter()
 	text="$(echo "$text" | grep "$filter_regex")"
 }
 
+apply_a_filter()
+{
+	text="$(echo "$text" | awk -F\; -v time="$a_filter" '{if($1>time){print}}')"
+}
+
+apply_b_filter()
+{
+	text="$(echo "$text" | awk -F\; -v time="$b_filter" '{if($1<time){print}}')"
+}
+
 # Apply all the filters
 [ -n "$t_filter" ] && apply_t_filter
+[ -n "$a_filter" ] && apply_a_filter
+[ -n "$b_filter" ] && apply_b_filter
 
 
 list_tick_f()
