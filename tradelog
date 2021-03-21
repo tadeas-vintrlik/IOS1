@@ -190,9 +190,25 @@ last_price_f()
 	done
 }
 
+hist_ord_f()
+{
+	for tick in $(list_tick_f)
+	do
+		printf "%-10s: " "$tick"
+		total="$(echo "$text" | grep ";$tick;" | wc -l)"
+		while [ $total -gt 0 ]
+		do
+			printf "#"
+			total=$((total-1))
+		done
+		printf "\n"
+	done
+}
+
 [ -n "$list_tick" ] && list_tick_f && exit 0
 [ -n "$profit" ] && profit_f && exit 0
 [ -n "$pos" ] && pos_f && exit 0
 [ -n "$last_price" ] && last_price_f && exit 0
+[ -n "$hist_ord" ] && hist_ord_f && exit 0
 echo "$text"
 
