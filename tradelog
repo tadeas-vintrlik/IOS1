@@ -1,4 +1,4 @@
-#!/usr/bin/env dash
+#!/usr/bin/env sh
 POSIXLY_CORRECT=1
 LC_ALL=C
 
