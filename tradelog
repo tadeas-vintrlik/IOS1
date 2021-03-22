@@ -186,7 +186,9 @@ longest_pos_f()
 	do
 		pos="$pos$(echo "$text" | awk -F\; -v t="$tick" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%.2f", sum*price}')\\n"
 	done
-	echo -e "$pos" | awk -F\; '{if(length > max){max=length}} END{print max+1}'
+	pos="$(echo "$pos" | sed 's/-/\\-/g')" # escape all minuses for printf since 
+	# some versions of echo do not have the -e flag
+	printf "$pos" | awk -F\; '{if(length > max){max=length}} END{print max}'
 }
 
 tick_pos_f()
@@ -206,7 +208,9 @@ pos_f()
 	do
 		all_pos="$all_pos$(tick_pos_f "$tick" "$length")\\n"
 	done
-	echo -e "$all_pos" | sort -t: -rnk2 | awk '$1'
+	pos="$(echo "$all_pos" | sed 's/-/\\-/g')" # escape all minuses for printf since 
+	# some versions of echo do not have the -e flag
+	printf "$all_pos" | sort -t: -rnk2 | awk '$1'
 	# Awk just to remove empty line created by sort
 }
 
