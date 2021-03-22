@@ -148,7 +148,6 @@ apply_b_filter()
 [ -n "$a_filter" ] && apply_a_filter
 [ -n "$b_filter" ] && apply_b_filter
 
-
 list_tick_f()
 {
 	echo "$text" | awk -F\; '{print $2}' | sort -u
@@ -180,10 +179,20 @@ max_pos()
 	echo "$max"
 }
 
+longest_pos_f()
+{
+	# TODO: This bottlenecks the whole programme
+	pos=""
+	for tick in $(list_tick_f)
+	do
+		pos="$pos$(echo "$text" | awk -F\; -v t="$tick" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%.2f\n", sum*price}')\n"
+	done
+	echo "$pos" | awk -F\; '{if(length > max){max=length}} END{print max+1}'
+}
+
 tick_pos_f()
 {
-	echo "$text" | awk -F\; -v t="$1" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%-10s:%12.2f\n", t, sum*price}'
-	# TODO: Change formating?
+	echo "$text" | awk -F\; -v t="$1" -v l="$(longest_pos_f)" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%-10s:%*.2f\n", t, l, sum*price}'
 }
 
 last_price()
