@@ -208,18 +208,20 @@ hist_ord_f()
 	do
 		printf "%-10s: " "$tick"
 
-		total="$(echo "$text" | grep -c ";$tick;")"
+		tick_transactions="$(echo "$text" | grep -c ";$tick;")"
 
+		# Adjust the width
 		if [ -n "$width" ]
 		then
-			scale=$((width / max))
-			total=$((total * scale))
+			tick_transactions="$(echo "$total * ($width / $max)" |
+				bc -l | xargs printf "%.0f")" 
 		fi
 
-		while [  "$total" -gt 0 ]
+		# Print a matching number of # in the histogram
+		while [  "$tick_transactions" -gt 0 ]
 		do
 			printf "#"
-			total=$((total-1))
+			tick_transactions=$((tick_transactions-1))
 		done
 		echo ""
 	done
@@ -231,4 +233,3 @@ hist_ord_f()
 [ -n "$last_price" ] && last_price_f && exit 0
 [ -n "$hist_ord" ] && hist_ord_f && exit 0
 echo "$text"
-
