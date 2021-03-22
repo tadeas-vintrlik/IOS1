@@ -116,7 +116,7 @@ do
 	[ ! -f "$o" ] && echo "$o file does not exist!" && exit 1
 	if echo "$o" | grep -q ".*.gz"
 	then
-		text="$text$(gzip -dck "$o")"
+		text="$text$(gzip -dc "$o")"
 	else
 		text="$text$(cat "$o")"
 	fi
