@@ -174,8 +174,8 @@ max_pos()
 	max=0
 	for tick in $(list_tick_f)
 	do
-		new="$(tick_pos_numeric "$tick" | xargs printf "%.0f")"
-		[ "$(abs "$new")" -gt "$(abs "$max")" ] && max="$new"
+		new="$(tick_pos_numeric "$tick")"
+		[ "$(echo "$(abs "$new") > $(abs "$max")"| bc -l)" -eq 1 ] && max="$new"
 	done
 	echo "$max"
 }
@@ -259,7 +259,7 @@ graph_pos_f()
 		tick_pos="$(tick_pos_numeric "$tick")"
 
 		# Adjust the width
-		[ -n "$width" ] && tick_pos="$(echo "$tick_pos * ($width / $max)" |
+		[ -n "$width" ] && tick_pos="$(echo "$tick_pos * $width / $max" |
 				bc -l | xargs printf "%d" 2>/dev/null)"
 
 		# Redirect stderr to /dev/null since printf throws an
