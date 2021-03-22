@@ -192,7 +192,7 @@ longest_pos_f()
 
 tick_pos_f()
 {
-	echo "$text" | awk -F\; -v t="$1" -v l="$(longest_pos_f)" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%-10s:%*.2f\n", t, l, sum*price}'
+	echo "$text" | awk -F\; -v t="$1" -v l="$2" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%-10s:%*.2f", t, l, sum*price}'
 }
 
 last_price()
@@ -202,11 +202,13 @@ last_price()
 
 pos_f()
 {
+	length="$(longest_pos_f)"
 	for tick in $(list_tick_f)
 	do
-		all_pos="$all_pos\\n$(tick_pos_f "$tick")"
+		all_pos="$all_pos$(tick_pos_f "$tick" "$length")"
 	done
-	echo "$all_pos" | sort -t: -rnk2 | awk '$1'
+	echo "$all_pos"
+	# echo "$all_pos" | sort -t: -rnk2 | awk '$1'
 	# Awk just to remove empty line created by sort
 }
 
@@ -229,9 +231,11 @@ longest_price_f()
 
 last_price_f()
 {
+
+	length="$(longest_price_f)"
 	for tick in $(list_tick_f)
 	do
-		echo "$text" | grep "$tick" | tail -n 1 | awk -F\; -v l="$(longest_price_f)" '{printf("%-9s : %*.2f\n", $2, l, $4)}'
+		echo "$text" | grep "$tick" | tail -n 1 | awk -F\; -v l="$length" '{printf("%-9s : %*.2f\n", $2, l, $4)}'
 	done
 }
 
