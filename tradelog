@@ -238,7 +238,10 @@ hist_ord_f()
 		# Adjust the width
 		[ -n "$width" ] &&
 			tick_transactions="$(echo "$tick_transactions * ($width / $max)" |
-				bc -l | xargs printf "%.0f")" 
+				bc -l | xargs printf "%d" 2>/dev/null)" 
+
+		# Redirect stderr to /dev/null since printf throws an
+		# annoying error message about flooring the number
 
 		# Print a matching number of # in the histogram
 		while [  "$tick_transactions" -gt 0 ]
