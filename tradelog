@@ -159,7 +159,8 @@ tick_pos_numeric()
 
 abs()
 {
-	if [ "$(echo "$1 < 0" | bc -l)" -eq 1 ]
+
+	if [ "$(awk -v arg="$1" 'BEGIN{print(arg < 0)}')" -eq 1 ]
 	then
 		echo "$1" | tr -d -
 	else
@@ -173,7 +174,7 @@ max_pos()
 	for tick in $(list_tick_f)
 	do
 		new="$(tick_pos_numeric "$tick")"
-		[ "$(echo "$(abs "$new") > $(abs "$max")"| bc -l)" -eq 1 ] && max="$new"
+		[ "$(awk -v new=$(abs "$new") -v max=$(abs "$max") 'BEGIN{print(new > max)}')" -eq 1 ] && max="$new" 
 	done
 	echo "$max"
 }
