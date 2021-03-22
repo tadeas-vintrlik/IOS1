@@ -207,15 +207,12 @@ hist_ord_f()
 	for tick in $(list_tick_f)
 	do
 		printf "%-10s: " "$tick"
-
 		tick_transactions="$(echo "$text" | grep -c ";$tick;")"
 
 		# Adjust the width
-		if [ -n "$width" ]
-		then
+		[ -n "$width" ] &&
 			tick_transactions="$(echo "$total * ($width / $max)" |
 				bc -l | xargs printf "%.0f")" 
-		fi
 
 		# Print a matching number of # in the histogram
 		while [  "$tick_transactions" -gt 0 ]
