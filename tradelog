@@ -154,9 +154,32 @@ list_tick_f()
 	echo "$text" | awk -F\; '{print $2}' | sort -u
 }
 
-tick_pos()
+tick_pos_numeric()
 {
-	echo "$text" | awk -F\; -v t="$1" '{if($2==t){price=$4; if($3=="buy"){sum-=$6}else{sum+=$6}}} END{printf "%-10s:%12.2f\n", t, -sum*price}'
+	echo "$text" | awk -F\; -v t="$1" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%.2f\n", sum*price}'
+}
+
+abs()
+{
+	arg="$1"
+	[ "$arg" -lt 0 ] && echo $((-arg))
+	[ "$arg" -ge 0 ] && echo "$arg"
+}
+
+max_pos()
+{
+	max=0
+	for tick in $(list_tick_f)
+	do
+		new="$(tick_pos_numeric "$tick" | xargs printf "%.0f")"
+		[ "$(abs "$new")" -gt "$(abs "$max")" ] && max="$new"
+	done
+	echo "$max"
+}
+
+tick_pos_f()
+{
+	echo "$text" | awk -F\; -v t="$1" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%-10s:%12.2f\n", t, sum*price}'
 	# TODO: Change formating?
 }
 
@@ -169,7 +192,7 @@ pos_f()
 {
 	for tick in $(list_tick_f)
 	do
-		all_pos="$all_pos\\n$(tick_pos "$tick")"
+		all_pos="$all_pos\\n$(tick_pos_f "$tick")"
 	done
 	echo "$all_pos" | sort -t: -rnk2 | awk '$1'
 	# Awk just to remove empty line created by sort
@@ -211,7 +234,7 @@ hist_ord_f()
 
 		# Adjust the width
 		[ -n "$width" ] &&
-			tick_transactions="$(echo "$total * ($width / $max)" |
+			tick_transactions="$(echo "$tick_transactions * ($width / $max)" |
 				bc -l | xargs printf "%.0f")" 
 
 		# Print a matching number of # in the histogram
@@ -224,9 +247,39 @@ hist_ord_f()
 	done
 }
 
+graph_pos_f()
+{
+	[ -n "$width" ] && max="$(abs $(max_pos))"
+	for tick in $(list_tick_f)
+	do
+		printf "%-10s:" "$tick"
+		tick_pos="$(tick_pos_numeric "$tick")"
+
+		# Adjust the width
+		[ -n "$width" ] && tick_pos="$(echo "$tick_pos * ($width / $max)" |
+				bc -l | xargs printf "%.0f")"
+
+		# Default unit is 1000 if no width specified
+		[ -z "$width" ] && tick_pos="$(echo "$tick_pos / 1000" |
+				bc -l | xargs printf "%.0f")"
+
+		char="#"
+		[ "$tick_pos" -lt 0 ] && char="!" && tick_pos=$((-tick_pos))
+		# Print a matching number of # in the histogram
+		[ "$tick_pos" -gt 0 ] && printf " " 
+		while [ "$tick_pos" -gt 0 ]
+		do
+			printf "%c" "$char"
+			tick_pos=$((tick_pos-1))
+		done
+		echo ""
+	done
+}
+
 [ -n "$list_tick" ] && list_tick_f && exit 0
 [ -n "$profit" ] && profit_f && exit 0
 [ -n "$pos" ] && pos_f && exit 0
 [ -n "$last_price" ] && last_price_f && exit 0
 [ -n "$hist_ord" ] && hist_ord_f && exit 0
+[ -n "$graph_pos" ] && graph_pos_f && exit 0
 echo "$text"
