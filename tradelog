@@ -181,11 +181,11 @@ max_pos()
 
 longest_pos_f()
 {
-	# TODO: This bottlenecks the whole programme
+	# This bottlenecks the whole programme
 	pos=""
 	for tick in $(list_tick_f)
 	do
-		pos="$pos$(echo "$text" | awk -F\; -v t="$tick" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%.2f\n", sum*price}')\n"
+		pos="$pos$(echo "$text" | awk -F\; -v t="$tick" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%.2f\n", sum*price}')\\n"
 	done
 	echo "$pos" | awk -F\; '{if(length > max){max=length}} END{print max+1}'
 }
@@ -215,12 +215,23 @@ profit_f()
 	echo "$text" | awk -F\; '{if($3=="buy"){sum-=$4*$6}else{sum+=$4*$6}} END {printf "%.2f\n", sum}'
 }
 
+longest_price_f()
+{
+	# This bottlenecks the whole programme
+	max=0
+	for tick in $(list_tick_f)
+	do
+		new="$(echo "$text" | grep "$tick" | tail -n 1 | awk -F\; '{printf("%.2f\n", $4+1)}' | wc -m)"
+		[ "$new" -gt "$max" ] && max="$new"
+	done
+	echo "$new"
+}
+
 last_price_f()
 {
 	for tick in $(list_tick_f)
 	do
-		echo "$text" | grep "$tick" | tail -n 1 | awk -F\; '{printf("%-9s : %7.2f\n", $2, $4)}'
-		# TODO: Change formating?
+		echo "$text" | grep "$tick" | tail -n 1 | awk -F\; -v l="$(longest_price_f)" '{printf("%-9s : %*.2f\n", $2, l, $4)}'
 	done
 }
 
