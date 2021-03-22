@@ -161,9 +161,12 @@ tick_pos_numeric()
 
 abs()
 {
-	arg="$1"
-	[ "$arg" -lt 0 ] && echo $((-arg))
-	[ "$arg" -ge 0 ] && echo "$arg"
+	if [ "$(echo "$1 < 0" | bc -l)" -eq 1 ]
+	then
+		echo "$1" | tr -d -
+	else
+		echo "$1"
+	fi
 }
 
 max_pos()
@@ -257,11 +260,14 @@ graph_pos_f()
 
 		# Adjust the width
 		[ -n "$width" ] && tick_pos="$(echo "$tick_pos * ($width / $max)" |
-				bc -l | xargs printf "%.0f")"
+				bc -l | xargs printf "%d" 2>/dev/null)"
+
+		# Redirect stderr to /dev/null since printf throws an
+		# annoying error message about flooring the number
 
 		# Default unit is 1000 if no width specified
 		[ -z "$width" ] && tick_pos="$(echo "$tick_pos / 1000" |
-				bc -l | xargs printf "%.0f")"
+				bc -l | xargs printf "%d" 2>/dev/null)"
 
 		char="#"
 		[ "$tick_pos" -lt 0 ] && char="!" && tick_pos=$((-tick_pos))
