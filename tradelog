@@ -54,6 +54,7 @@ do
 		shift
 		;;
 	-w)
+		[ -n "$width" ] && usage 1
 		shift
 		width="$1"
 		shift
