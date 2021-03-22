@@ -255,7 +255,7 @@ hist_ord_f()
 
 graph_pos_f()
 {
-	[ -n "$width" ] && max="$(abs $(max_pos))"
+	[ -n "$width" ] && max="$(abs "$(max_pos)")"
 	for tick in $(list_tick_f)
 	do
 		printf "%-10s:" "$tick"
