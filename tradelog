@@ -2,7 +2,6 @@
 export POSIXLY_CORRECT=1
 export LC_ALL=C
 
-# TODO: Make prettier
 usage()
 {
 echo 'Usage: tradelog [-h|--help] [FILTER] [COMMAND] [LOG [LOG2 [...]]
