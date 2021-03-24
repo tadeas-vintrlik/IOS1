@@ -173,7 +173,7 @@ max_pos()
 	for tick in $(list_tick_f)
 	do
 		new="$(tick_pos_numeric "$tick")"
-		[ "$(awk -v new=$(abs "$new") -v max=$(abs "$max") 'BEGIN{print(new > max)}')" -eq 1 ] && max="$new" 
+		[ "$(awk -v new="$(abs "$new")" -v max="$(abs "$max")" 'BEGIN{print(new > max)}')" -eq 1 ] && max="$new" 
 	done
 	echo "$max"
 }
@@ -188,7 +188,7 @@ longest_pos_f()
 	done
 	pos="$(echo "$pos" | sed 's/-/\\-/g')" # escape all minuses for printf since 
 	# some versions of echo do not have the -e flag
-	printf "$pos" | awk -F\; '{if(length > max){max=length}} END{print max}'
+	printf "%b" "$pos" | awk -F\; '{if(length > max){max=length}} END{print max}'
 }
 
 tick_pos_f()
@@ -210,7 +210,7 @@ pos_f()
 	done
 	pos="$(echo "$all_pos" | sed 's/-/\\-/g')" # escape all minuses for printf since 
 	# some versions of echo do not have the -e flag
-	printf "$all_pos" | sort -t: -rnk2 | awk '$1'
+	printf "%b" "$all_pos" | sort -t: -rnk2 | awk '$1'
 	# Awk just to remove empty line created by sort
 }
 
