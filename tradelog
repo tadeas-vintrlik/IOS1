@@ -173,27 +173,26 @@ max_pos()
 	for tick in $(list_tick_f)
 	do
 		new="$(tick_pos_numeric "$tick")"
-		[ "$(awk -v new="$(abs "$new")" -v max="$(abs "$max")" 'BEGIN{if(new < 0){new+=1}print(new > max)}')" -eq 1 ] && max="$new" 
+		[ "$(awk -v new_n="$new" -v new="$(abs "$new")" -v max="$(abs "$max")" 'BEGIN{if(new_n < 0){new+=1}print(new > max)}')" -eq 1 ] && max="$new"
 	done
 	echo "$max"
 }
 
 longest_pos_f()
 {
-	# This bottlenecks the whole programme
 	pos=""
 	for tick in $(list_tick_f)
 	do
-		pos="$pos$(echo "$text" | awk -F\; -v t="$tick" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%.2f", sum*price}')\\n"
+		pos="$pos$(echo "$text" | awk -F\; -v t="$tick" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%.2f\\n", sum*price}')"
 	done
-	pos="$(echo "$all_pos" | sed 's/-/\-/g')" # escape all minuses for printf since
-	# some versions of echo do not have the -e flag
+	pos="$(echo "$pos" | sed 's/-/\\-/g')" # escape all minuses for printf since
+	# some versions of echo do not have the -e flag"
 	printf "%b" "$pos" | awk -F\; '{if(length > max){max=length}} END{print max}'
 }
 
 tick_pos_f()
 {
-	echo "$text" | awk -F\; -v t="$1" -v l="$2" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%-10s:%*.2f", t, l, sum*price}'
+	echo "$text" | awk -F\; -v t="$1" -v l="$2" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%-10s:%*.2f\\n", t, l, sum*price}'
 }
 
 last_price()
@@ -206,9 +205,9 @@ pos_f()
 	length="$(longest_pos_f)"
 	for tick in $(list_tick_f)
 	do
-		all_pos="$all_pos$(tick_pos_f "$tick" "$length")\\n"
+		all_pos="$all_pos$(tick_pos_f "$tick" "$length")"
 	done
-	pos="$(echo "$all_pos" | sed 's/-/\-/g')" # escape all minuses for printf since 
+	pos="$(echo "$all_pos" | sed 's/-/\\-/g')" # escape all minuses for printf since 
 	# some versions of echo do not have the -e flag
 	printf "%b" "$all_pos" | sort -t: -rnk2 | awk '$1'
 	# Awk just to remove empty line created by sort
