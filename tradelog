@@ -190,7 +190,7 @@ last_price()
 
 pos_f()
 {
-	length="$(max_pos | awk '{print length}')"
+	length="$(max_pos | wc -m)"
 	for tick in $(list_tick_f)
 	do
 		all_pos="$all_pos$(tick_pos_f "$tick" "$length")"
