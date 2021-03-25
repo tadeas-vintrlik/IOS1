@@ -180,7 +180,7 @@ max_pos()
 
 tick_pos_f()
 {
-	echo "$text" | awk -F\; -v t="$1" -v l="12" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%-10s:%*.2f\\n", t, l, sum*price}'
+	echo "$text" | awk -F\; -v t="$1" -v l="$2" '{if($2==t){price=$4; if($3=="buy"){sum+=$6}else{sum-=$6}}} END{printf "%-10s:%*.2f\\n", t, l, sum*price}'
 }
 
 last_price()
