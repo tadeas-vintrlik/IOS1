@@ -173,10 +173,22 @@ max_pos()
 	for tick in $(list_tick_f)
 	do
 		new="$(tick_pos_numeric "$tick")"
-		[ "$(awk -v new_n="$new" -v new="$(abs "$new")" -v max="$(abs "$max")" 'BEGIN{if(new_n < 0){new+=1}print(new > max)}')" -eq 1 ] && max="$new"
+		[ "$(awk -v new="$(abs "$new")" -v max="$(abs "$max")" 'BEGIN{print(new > max)}')" -eq 1 ] && max="$new"
 	done
 	echo "$max"
 }
+
+longest_pos()
+{
+	max=""
+	for tick in $(list_tick_f)
+	do
+		new="$(tick_pos_numeric "$tick")"
+		[ "${#new}" -gt  "${#max}" ] && max="$new"
+	done
+	echo "$max"
+}
+
 
 tick_pos_f()
 {
@@ -190,7 +202,7 @@ last_price()
 
 pos_f()
 {
-	length="$(max_pos | wc -m)"
+	length="$(longest_pos | wc -m)"
 	for tick in $(list_tick_f)
 	do
 		all_pos="$all_pos$(tick_pos_f "$tick" "$length")"
