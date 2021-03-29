@@ -116,7 +116,12 @@ do
 	then
 		text="$text$(gzip -dc "$o")"
 	else
-		text="$text$(cat "$o")"
+		if [ -z "$text" ]
+		then
+			text="$(cat "$o")"
+		else
+			text="$text\\n$(cat "$o")"
+		fi
 	fi
 done
 
